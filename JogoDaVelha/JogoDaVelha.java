@@ -1,77 +1,103 @@
 public class JogoDaVelha {
     protected static final int X = 1, O = -1;
     protected static final int VAZIO = 0;
-    protected int tabuleiro[][] = new int[3][3];
+    protected int tabuleiro[][];
+    protected int dimensao;
     protected int jogador;
 
-    public JogoDaVelha(int D) {
-        this.D = D;
+    public JogoDaVelha(int dimensao) {
+        this.dimensao = dimensao; // Inicializando a dimensão
+        tabuleiro = new int[dimensao][dimensao];
         limpaTabuleiro();
     }
 
-
     public void limpaTabuleiro() {
-        for(int i = 0;i<3;i++) {
-            for (int j=0; j<3; j++) {
-                tabuleiro[i][j]=VAZIO;
+        for (int i = 0; i < dimensao; i++) {
+            for (int j = 0; j < dimensao; j++) {
+                tabuleiro[i][j] = VAZIO;
             }
         }
         jogador = X;
     }
 
     public void poePeca(int i, int j) {
-        if (i<0||i>2||j<0||j>2){
+        if (i < 0 || i >= dimensao || j < 0 || j >= dimensao) {
             throw new IllegalArgumentException("Posição Inválida");
         }
-        if (tabuleiro[i][j]!=VAZIO) throw new IllegalArgumentException("Posição Ocupada");
-        tabuleiro[i][j]=jogador;
+        if (tabuleiro[i][j] != VAZIO) throw new IllegalArgumentException("Posição Ocupada");
+        tabuleiro[i][j] = jogador;
         jogador = -jogador;
     }
 
-    public boolean eVencedor(int marca) {
-        return ((tabuleiro[0][0] + tabuleiro[0][1] + tabuleiro[0][2] == marca*3) 	// linha 0 
-|| (tabuleiro[1][0] + tabuleiro[1][1] + tabuleiro[1][2] == marca*3) 			// linha 1 
-|| (tabuleiro[2][0] + tabuleiro[2][1] + tabuleiro[2][2] == marca*3) 			// linha 2 
-|| (tabuleiro[0][0] + tabuleiro[1][0] + tabuleiro[2][0] == marca*3) 			// coluna 0 
-|| (tabuleiro[0][1] + tabuleiro[1][1] + tabuleiro[2][1] == marca*3) 			// coluna 1 
-|| (tabuleiro[0][2] + tabuleiro[1][2] + tabuleiro[2][2] == marca*3) 			// coluna 2 
-|| (tabuleiro[0][0] + tabuleiro[1][1] + tabuleiro[2][2] == marca*3) 			// diagonal 
-|| (tabuleiro[2][0] + tabuleiro[1][1] + tabuleiro[0][2] == marca*3)); 		// diagonal
+    public boolean eVencedor(int jogador) {
+        return verificaLinhas(jogador) || verificaColunas(jogador) || verificaDiagonais(jogador);
     }
-
+    
+    private boolean verificaLinhas(int jogador) {
+        for (int i = 0; i < dimensao; i++) {
+            if (verificaSoma(tabuleiro[i], jogador)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean verificaColunas(int jogador) {
+        for (int j = 0; j < dimensao; j++) {
+            int[] coluna = new int[dimensao];
+            for (int i = 0; i < dimensao; i++) {
+                coluna[i] = tabuleiro[i][j];
+            }
+            if (verificaSoma(coluna, jogador)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    private boolean verificaDiagonais(int jogador) {
+        int[] diagonalPrincipal = new int[dimensao];
+        int[] diagonalSecundaria = new int[dimensao];
+    
+        for (int i = 0; i < dimensao; i++) {
+            diagonalPrincipal[i] = tabuleiro[i][i];
+            diagonalSecundaria[i] = tabuleiro[i][dimensao - 1 - i];
+        }
+    
+        return verificaSoma(diagonalPrincipal, jogador) || verificaSoma(diagonalSecundaria, jogador);
+    }
+    
+    private boolean verificaSoma(int[] linhaOuColuna, int jogador) {
+        int soma = 0;
+        for (int valor : linhaOuColuna) {
+            soma += valor;
+        }
+        return soma == jogador * dimensao;
+    }
+    
     public int vencedor() {
-        /** Implementar método indicando se há um vencedor e retornando o valor 1 ou -1
-         * para indicar o vencedor ou zero para indicar empate.
-         */
-        return 2;
+        if (eVencedor(X)) {
+            return X;
+        } else if (eVencedor(O)) {
+            return O;
+        } else {
+            return 0; // Empate
+        }
     }
-
     
     public String toString() {
-        /** Implementar o método to String que deve retornar
-         * uma string com o tabuleiro do jogo da velha com as peças
-         * nas posições corretas.
-         */
-        String retorno = "";
-        for (int i=0; i<3;i++){
-            for (int j=0; j<3; j++){
-                if(tabuleiro[i][j]==X) {
-                    retorno += ("X");
-                } else if (tabuleiro[i][j]==O) {
-                    retorno += ("O");
-                } else {
-                    retorno += (" ");
-                }
-                if (j<2){
-                    retorno += ("|");
+        StringBuilder resultado = new StringBuilder();
+        for (int i = 0; i < dimensao; i++) {
+            for (int j = 0; j < dimensao; j++) {
+                resultado.append(tabuleiro[i][j] == X ? "X" : tabuleiro[i][j] == O ? "O" : " ");
+                if (j < dimensao - 1) {
+                    resultado.append(" | ");
                 }
             }
-            //System.out.println();
-            if (i<2){
-                retorno += ("\n-----\n");
+            if (i < dimensao - 1) {
+                resultado.append("\n" + "-".repeat(dimensao * 4 - 1) + "\n");
             }
-
-        }   
-        return retorno;
+        }
+        return resultado.toString();
     }
 }
