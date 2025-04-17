@@ -21,7 +21,7 @@ public class JogoDaVelha {
     }
 
     public void poePeca(int i, int j) {
-        if (i < 0 || i >= dimensao || j < 0 || j >= dimensao) {
+        if (i < 0 || i >= dimensao -1 || j < 0 || j >= dimensao -1 ) {
             throw new IllegalArgumentException("Posição Inválida");
         }
         if (tabuleiro[i][j] != VAZIO) throw new IllegalArgumentException("Posição Ocupada");
